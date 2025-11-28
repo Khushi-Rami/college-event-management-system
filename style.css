@@ -1,0 +1,116 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-image: url('https://cache.careers360.mobi/media/colleges/social-media/media-gallery/50323/2022/11/15/Campus%20View%20of%20Malwa%20Institute%20of%20Science%20and%20Management%20Indore_campus-view.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+header {
+    width: 100%;
+    background: #1e90ff;
+    color: #fff;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.container {
+    background: #fff;
+    padding: 25px;
+    width: 350px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px gray;
+    margin-top: 80px;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+    border: 1px solid gray;
+    box-sizing: border-box;
+}
+
+button {
+    background: #0066ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #004ecc;
+}
+
+.hidden {
+    display: none;
+}
+
+.event-card {
+    background: #f3f4f6;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.delete-btn {
+    background: red;
+    color: white;
+    margin-top: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+
+/* Contact Button */
+#contactButton {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #1e90ff;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+/* Contact Form Popup */
+#contactForm {
+    position: fixed;
+    right: 20px;
+    bottom: 70px;
+    width: 300px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+    z-index: 1001;
+}
+
+#contactForm input, #contactForm textarea, #contactForm button {
+    width: 100%;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#contactForm textarea {
+    resize: none;
+    height: 80px;
+}
