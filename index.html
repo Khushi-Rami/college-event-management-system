@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Event Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>College Event Management System</header>
+
+<!-- LOGIN PAGE -->
+<div class="container" id="loginPage">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Enter Email" />
+    <input type="password" id="loginPassword" placeholder="Enter Password" />
+    <button onclick="login()">Login</button>
+
+    <div class="link">
+        <a href="#" onclick="showRegister()">Don't have an account? Register</a>
+    </div>
+</div>
+
+<!-- REGISTER PAGE -->
+<div class="container hidden" id="registerPage">
+    <h2>Register</h2>
+    <input type="text" id="regName" placeholder="Full Name" />
+    <input type="email" id="regEmail" placeholder="Email" />
+    <input type="password" id="regPassword" placeholder="Password" />
+    <input type="tel" id="regPhone" placeholder="Phone Number" />
+    <select id="regCourse">
+        <option value="">Select Course</option>
+        <option value="B.Tech CS">B.Tech CS</option>
+        <option value="B.Tech IT">B.Tech IT</option>
+        <option value="B.Tech ECE">B.Tech ECE</option>
+        <option value="Other">Other</option>
+    </select>
+    <select id="regYear">
+        <option value="">Select Year</option>
+        <option value="1st">1st</option>
+        <option value="2nd">2nd</option>
+        <option value="3rd">3rd</option>
+        <option value="4th">4th</option>
+    </select>
+    <button onclick="register()">Register</button>
+
+    <div class="link">
+        <a href="#" onclick="showLogin()">Already have an account? Login</a>
+    </div>
+</div>
+
+<!-- USER PANEL -->
+<div class="container hidden" id="userPanel">
+    <h2>Welcome <span id="userName"></span></h2>
+    <button onclick="viewEvents()">View Events</button>
+    <button onclick="showParticipationForm()">Register for Participation</button>
+    <button onclick="logout()">Logout</button>
+
+    <div id="userEventList"></div>
+
+    <!-- Participation Form -->
+    <div id="participationForm" class="hidden">
+        <h3>Event Participation Registration</h3>
+        <input type="text" id="rollNumber" placeholder="Roll Number" />
+        <select id="branch">
+            <option value="">Select Branch</option>
+            <option value="B.Tech CS">B.Tech CS</option>
+            <option value="B.Tech IT">B.Tech IT</option>
+            <option value="B.Tech ECE">B.Tech ECE</option>
+            <option value="Other">Other</option>
+        </select>
+        <select id="yearParticipation">
+            <option value="">Select Year</option>
+            <option value="1st">1st</option>
+            <option value="2nd">2nd</option>
+            <option value="3rd">3rd</option>
+            <option value="4th">4th</option>
+        </select>
+        <button onclick="submitParticipation()">Submit Participation</button>
+    </div>
+</div>
+
+
+<!-- ADMIN PANEL -->
+<div class="container hidden" id="adminPanel">
+    <h2>Admin Panel</h2>
+
+    <input type="text" id="eventTitle" placeholder="Event Title" />
+    <input type="date" id="eventDate" />
+    <input type="text" id="eventCategory" placeholder="Event Category" />
+    <textarea id="eventDesc" placeholder="Event Description"></textarea>
+    <button onclick="addEvent()">Add Event</button>
+    <button onclick="viewRegistrations()" style="background: green; margin-top: 10px;">View Registrations</button>
+    <button onclick="logout()" style="background:black; margin-top:10px;">Logout</button>
+
+    <h3>Event List</h3>
+    <div id="eventList"></div>
+
+    <h3>Registered Students</h3>
+    <div id="registrationList"></div>
+</div>
+
+
+<script>
+// --- Admin credentials ---
+const adminEmail = "admin@gmail.com";
+const adminPass = "admin123";
+
+// --- Show Login/Register ---
+function showLogin() {
+    document.getElementById("registerPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
+}
+function showRegister() {
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("registerPage").classList.remove("hidden");
+}
+
+// --- Register Function ---
+function register() {
+    let name = document.getElementById("regName").value;
+    let email = document.getElementById("regEmail").value;
+    let pass = document.getElementById("regPassword").value;
+    let phone = document.getElementById("regPhone").value;
+    let course = document.getElementById("regCourse").value;
+    let year = document.getElementById("regYear").value;
+
+    if (!name || !email || !pass || !phone || !course || !year) {
+        alert("All fields are required!");
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    if (users.some(u => u.email === email)) {
+        alert("Email already registered!");
+        return;
+    }
+
+    users.push({ name, email, pass, phone, course, year });
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Registration successful!");
+    showLogin();
+}
+
+// --- Login Function ---
+function login() {
+    let email = document.getElementById("loginEmail").value;
+    let pass = document.getElementById("loginPassword").value;
+
+    if (email === adminEmail && pass === adminPass) {
+        alert("Admin Login Successful!");
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        loadEvents();
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let found = users.find(u => u.email === email && u.pass === pass);
+
+    if (found) {
+        alert("User Login Successful!");
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("userPanel").classList.remove("hidden");
+
+        // Save logged-in user info
+        localStorage.setItem("loggedInUser", JSON.stringify(found));
+
+        // Display name
+        document.getElementById("userName").innerText = found.name;
+    } else {
+        alert("Invalid Credentials!");
+    }
+}
+
+// --- Logout ---
+function logout() {
+    localStorage.removeItem("loggedInUser");
+    location.reload();
+}
+
+// --- Add Event (Admin) ---
+function addEvent() {
+    let title = document.getElementById("eventTitle").value;
+    let date = document.getElementById("eventDate").value;
+    let desc = document.getElementById("eventDescription").value;
+
+    if (!title || !date || !desc) {
+        alert("Please fill all fields!");
+        return;
+    }
+
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+    events.push({ title, date, desc });
+    localStorage.setItem("events", JSON.stringify(events));
+    alert("Event Added!");
+    loadEvents();
+}
+
+// --- Load Events (Admin) ---
+function loadEvents() {
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+    let eventList = document.getElementById("eventList");
+    eventList.innerHTML = "";
+    events.forEach((ev, index) => {
+        eventList.innerHTML += `
+            <div class="event-card">
+                <strong>${ev.title}</strong><br>
+                Date: ${ev.date}<br>
+                ${ev.desc}
+                <button class="delete-btn" onclick="deleteEvent(${index})">Delete</button>
+            </div>`;
+    });
+}
+
+// --- Delete Event ---
+function deleteEvent(index) {
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+    events.splice(index, 1);
+    localStorage.setItem("events", JSON.stringify(events));
+    loadEvents();
+}
+
+// --- View Events (User) ---
+function viewEvents() {
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+    let userList = document.getElementById("userEventList");
+    userList.innerHTML = "";
+    events.forEach(ev => {
+        userList.innerHTML += `
+            <div class="event-card">
+                <strong>${ev.title}</strong><br>
+                Date: ${ev.date}<br>
+                ${ev.desc}
+            </div>`;
+    });
+}
+
+// --- Show Participation Form ---
+function showParticipationForm() {
+    document.getElementById("participationForm").classList.remove("hidden");
+}
+
+// --- Submit Participation ---
+function submitParticipation() {
+    let roll = document.getElementById("rollNumber").value;
+    let branch = document.getElementById("branch").value;
+    let year = document.getElementById("yearParticipation").value;
+
+    if (!roll || !branch || !year) {
+        alert("All fields are required!");
+        return;
+    }
+
+    let loggedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    let participation = JSON.parse(localStorage.getItem("participation")) || [];
+
+    participation.push({
+        email: loggedUser.email,
+        name: loggedUser.name,
+        roll,
+        branch,
+        year,
+        timestamp: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("participation", JSON.stringify(participation));
+
+    alert("Participation registration successful!");
+    document.getElementById("participationForm").classList.add("hidden");
+}
+// Contact form functions
+function openContactForm() {
+    document.getElementById("contactForm").classList.remove("hidden");
+}
+function closeContactForm() {
+    document.getElementById("contactForm").classList.add("hidden");
+}
+function submitContact() {
+    let name = document.getElementById("contactName").value;
+    let email = document.getElementById("contactEmail").value;
+    let message = document.getElementById("contactMessage").value;
+
+    if (!name || !email || !message) {
+        alert("All fields are required!");
+        return;
+    }
+
+    // In a real app you'd send this to a server; here we just show a confirmation.
+    alert("Message sent. Thank you!");
+    document.getElementById("contactName").value = "";
+    document.getElementById("contactEmail").value = "";
+    document.getElementById("contactMessage").value = "";
+    closeContactForm();
+}
+
+
+</script>
+
+<!-- Contact Us Button -->
+<div id="contactButton" onclick="openContactForm()">Contact Us</div>
+
+<!-- Contact Form Popup -->
+<div id="contactForm" class="hidden">
+    <h3>Contact Us</h3>
+    <input type="text" id="contactName" placeholder="Your Name" />
+    <input type="email" id="contactEmail" placeholder="Your Email" />
+    <textarea id="contactMessage" placeholder="Your Message"></textarea>
+    <button onclick="submitContact()">Send</button>
+    <button onclick="closeContactForm()" style="background:red; margin-top:5px;">Close</button>
+</div>
+
+
+
+</body>
+</html>
